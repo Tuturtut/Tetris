@@ -1,31 +1,33 @@
 package fr.arthur.tetris.panel;
 
-import fr.arthur.tetris.GameFrame;
-import fr.arthur.tetris.Grid;
-import fr.arthur.tetris.Pieces;
-import fr.arthur.tetris.pieces.Piece;
+import fr.arthur.tetris.*;
 
+import javax.swing.*;
 import java.awt.*;
 
 
 public class GamePanel extends Component {
 
-    public Graphics g;
+
+    private DebugGraphics g;
 
     public GamePanel() {
         super();
-        g = getGraphics();
-        System.out.println(g);
+        TetrisKeyListener keyListener = new TetrisKeyListener();
+        this.addKeyListener(keyListener);
+        this.setVisible(true);
+        this.setFocusable(true);
     }
 
     public void displayGrid(Graphics g) {
-        g.setColor(Color.GRAY);
-
-        for (int i = 0; i < Grid.getInstance().getWidth(); i++) {
-            for (int j = 0; j < Grid.getInstance().getHeight(); j++) {
-                // Affiche un carré de 20x20 vide
+        for (int i = 0; i < Grid.getInstance().getWIDTH(); i++) {
+            for (int j = 0; j < Grid.getInstance().getHEIGHT(); j++) {
+                if (Grid.getInstance().getGrid()[i][j] != null) {
+                    g.setColor(Grid.getInstance().getGrid()[i][j].getColor());
+                    g.fillRect(i * 20, j * 20, 20, 20);
+                }
+                g.setColor(Color.GRAY);
                 g.drawRect(i * 20, j * 20, 20, 20);
-
             }
         }
     }
@@ -33,10 +35,15 @@ public class GamePanel extends Component {
     public void paint(Graphics g) {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, GameFrame.WIDTH/2, GameFrame.HEIGHT);
+        drawPiece(g);
         displayGrid(g);
     }
 
-    public void drawPiece(Graphics g, Pieces currentPiece) {
-        g.fillRect(currentPiece.getX() * 20, currentPiece.getY() * 20, 20, 20);
+    public void drawPiece(Graphics g) {
+        // Foreach loop
+        for (Tiles tiles: Game.getInstance().getCurrentPiece().getTiles()) {
+            g.setColor(tiles.getColor());
+            g.fillRect(tiles.getX() * 20, tiles.getY() * 20, 20, 20);
+        }
     }
 }
