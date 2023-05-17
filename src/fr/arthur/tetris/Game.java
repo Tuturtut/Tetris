@@ -1,6 +1,6 @@
 package fr.arthur.tetris;
 
-import fr.arthur.tetris.pieces.Piece;
+import fr.arthur.tetris.pieces.PieceBag;
 
 public class Game implements Runnable {
 
@@ -9,13 +9,15 @@ public class Game implements Runnable {
 
     private boolean onGame;
     private final double FPS = 60;
-    private final double GAME_SPEED = 1;
+    private final double GAME_SPEED = 0.5;
+
+    private PieceBag bundle;
 
     public Pieces currentPiece;
 
     public Game() {
-        this.currentPiece = Piece.getRandomPiece();
-        this.currentPiece = new Pieces(Piece.I);
+        this.bundle = new PieceBag();
+        this.currentPiece = new Pieces(bundle.getNextPiece());
         this.onGame = true;
     }
 
@@ -34,7 +36,6 @@ public class Game implements Runnable {
         startGameThread();
         SpeedUpdate speedUpdate = new SpeedUpdate();
         speedUpdate.startGameThread();
-
     }
 
     public void startGameThread() {
@@ -80,7 +81,12 @@ public class Game implements Runnable {
     }
 
     public void getNewPiece() {
-        currentPiece = Piece.getRandomPiece();
+        currentPiece = new Pieces(bundle.getNextPiece());
+    }
+
+    public void setGameOver(boolean gameOver) {
+        System.out.println("Game Over");
+        onGame = gameOver;
     }
 
     public class SpeedUpdate implements Runnable{

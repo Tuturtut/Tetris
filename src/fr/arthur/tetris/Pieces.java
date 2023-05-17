@@ -128,14 +128,17 @@ public class Pieces {
     }
 
     public void clockWiseRotation() {
+
+        System.out.println("clockWiseRotation");
+
         int[][] rotatedPiece = this.piece.getNextClockwiseRotation();
         int newWidth = rotatedPiece[0].length;
         int newHeight = rotatedPiece.length;
         int newX = x - (newWidth - width) / 2;
         int newY = y - (newHeight - height) / 2;
 
-        if (newX < 0 || newX + newWidth > Grid.getInstance().getWIDTH() || newY < 0 || newY + newHeight > Grid.getInstance().getHEIGHT()) {
-            return; // La rotation entraîne une sortie du terrain, on ne fait rien
+        if (Grid.getInstance().checkRotationCollision(this, newX, newY, newWidth, newHeight)) {
+            return; // La rotation entraîne une collision, on ne fait rien
         }
 
         this.piece.rotateClockwise();
@@ -149,27 +152,22 @@ public class Pieces {
         addTiles();
     }
 
-    private boolean checkCollisionBelow() {
-        for (Tiles tile : tiles) {
-            int nextY = tile.getY() + 1;
-            if (nextY >= Grid.getInstance().getHEIGHT()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     public void counterClockWiseRotation() {
+
+        System.out.println("counterClockWiseRotation");
+
         int[][] rotatedPiece = this.piece.getNextCounterClockwiseRotation();
         int newWidth = rotatedPiece[0].length;
         int newHeight = rotatedPiece.length;
         int newX = x - (newWidth - width) / 2;
         int newY = y - (newHeight - height) / 2;
 
-        if (newX < 0 || newX + newWidth > Grid.getInstance().getWIDTH() || newY < 0 || newY + newHeight > Grid.getInstance().getHEIGHT()) {
-            return; // La rotation entraîne une sortie du terrain, on ne fait rien
+        // Appel d'une méthode de Grid pour vérifier si la rotation est possible
+        if (Grid.getInstance().checkRotationCollision(this, newX, newY, newWidth, newHeight)) {
+            return; // La rotation entraîne une collision, on ne fait rien
         }
+
 
         this.piece.rotateCounterClockwise();
         this.width = newWidth;
@@ -185,23 +183,26 @@ public class Pieces {
 
     public void moveLeft() {
         subX(1);
-        if (Grid.getInstance().checkCollision(this)) {
+        if (Grid.getInstance().checkLateralGridCollision(this)) {
             addX(1); // Annule le mouvement s'il y a une collision
+        } else if (Grid.getInstance().checkTileCollision(this)){
+            addX(1);
         }
+
     }
 
     public void moveRight() {
         addX(1);
-        if (Grid.getInstance().checkCollision(this)) {
+        if (Grid.getInstance().checkLateralGridCollision(this)) {
             subX(1); // Annule le mouvement s'il y a une collision
+        } else if (Grid.getInstance().checkTileCollision(this)){
+            subX(1);
         }
     }
 
     public void moveDown() {
-        if (!checkCollisionBelow()) {
+        if (Grid.getInstance().checkGridCollisionBelow(this)) {
             addY(1);
-        } else {
-            Grid.getInstance().fixPiece(this);
         }
     }
 
@@ -216,10 +217,9 @@ public class Pieces {
     }
 
     public void fastDrop() {
-        while (!Grid.getInstance().checkCollision(this)) {
+        while (!Grid.getInstance().checkLateralGridCollision(this) && Grid.getInstance().checkGridCollisionBelow(this)) {
             addY(1);
         }
-        subY(1); // Annule le dernier mouvement pour obtenir une position valide
         Grid.getInstance().fixPiece(this);
     }
 

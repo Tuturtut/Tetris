@@ -1,6 +1,10 @@
 package fr.arthur.tetris.pieces;
 
+import fr.arthur.tetris.Game;
 import fr.arthur.tetris.Pieces;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 public enum Piece {
 
@@ -177,9 +181,17 @@ public enum Piece {
         this(name, orientations, color, 1);
     }
 
-    public static Pieces getRandomPiece() {
-        return new Pieces(values()[(int) (Math.random() * values().length)]);
+    public static ArrayList<Pieces> fillBundle() {
+        ArrayList<Piece> pieceList = new ArrayList<>();
+        Collections.addAll(pieceList, Piece.values());
+        Collections.addAll(pieceList, Piece.values());
+        ArrayList<Pieces> bundle = new ArrayList<>();
+        for (Piece piece : pieceList) {
+            bundle.add(new Pieces(piece));
+        }
+        return bundle;
     }
+
 
     public int[][] getCurrentOrientation() {
         int index = rotation % orientations.length;
@@ -250,7 +262,6 @@ public enum Piece {
                 rotatedPiece[currentPiece[i].length - 1 - j][i] = currentPiece[i][j];
             }
         }
-
         return rotatedPiece;
     }
 
