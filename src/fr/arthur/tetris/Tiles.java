@@ -56,4 +56,12 @@ public class Tiles {
     public void subY(int i) {
         this.y -= i;
     }
+
+    @Override
+    public String toString() {
+        return "Tiles{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

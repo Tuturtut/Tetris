@@ -4,6 +4,7 @@ import fr.arthur.tetris.pieces.Piece;
 import fr.arthur.tetris.pieces.TileColor;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 public class Pieces {
@@ -17,7 +18,6 @@ public class Pieces {
     public TileColor color;
     public ArrayList<Tiles> tiles = new ArrayList<>();
     public int spawnY;
-
 
     public Pieces(Piece piece, int x, int y) {
         this.name = piece.getName();
@@ -33,10 +33,8 @@ public class Pieces {
         addTiles();
     }
 
-
-
-    public Pieces(Piece value) {
-        this(value, Grid.X_START, Grid.Y_START - value.getSpawnY());
+    public Pieces(Piece piece) {
+        this(piece, Grid.X_START, Grid.Y_START - piece.getSpawnY());
     }
 
     private void addTiles() {
@@ -75,10 +73,6 @@ public class Pieces {
         return y;
     }
 
-    public int getBottomY() {
-        return bottomY;
-    }
-
     public TileColor getPieceColor() {
         return color;
     }
@@ -113,7 +107,6 @@ public class Pieces {
         }
     }
 
-
     public void setY(int newY) {
         int deltaY = newY - y; // Calculer la différence entre la nouvelle valeur et l'ancienne valeur de y
 
@@ -127,9 +120,16 @@ public class Pieces {
         }
     }
 
+    private void subY(int i) {
+        this.y -= i;
+        this.bottomY -= i;
+        for (Tiles tile : tiles) {
+            tile.subY(i);
+        }
+    }
+
     public void clockWiseRotation() {
 
-        System.out.println("clockWiseRotation");
 
         int[][] rotatedPiece = this.piece.getNextClockwiseRotation();
         int newWidth = rotatedPiece[0].length;
@@ -152,10 +152,8 @@ public class Pieces {
         addTiles();
     }
 
-
     public void counterClockWiseRotation() {
 
-        System.out.println("counterClockWiseRotation");
 
         int[][] rotatedPiece = this.piece.getNextCounterClockwiseRotation();
         int newWidth = rotatedPiece[0].length;
@@ -179,7 +177,6 @@ public class Pieces {
         tiles.clear();
         addTiles();
     }
-
 
     public void moveLeft() {
         subX(1);
@@ -206,16 +203,6 @@ public class Pieces {
         }
     }
 
-
-
-    private void subY(int i) {
-        this.y -= i;
-        this.bottomY -= i;
-        for (Tiles tile : tiles) {
-            tile.subY(i);
-        }
-    }
-
     public void fastDrop() {
         while (!Grid.getInstance().checkLateralGridCollision(this) && Grid.getInstance().checkGridCollisionBelow(this)) {
             addY(1);
@@ -223,4 +210,37 @@ public class Pieces {
         Grid.getInstance().fixPiece(this);
     }
 
+    public void pieceUpdate(KeyEvent e) {
+        Pieces currentPiece = Game.getInstance().getCurrentPiece();
+
+        if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+            currentPiece.moveLeft();
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            currentPiece.moveRight();
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+            currentPiece.moveDown();
+        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            currentPiece.fastDrop();
+        } else if (e.getKeyCode() == KeyEvent.VK_X) {
+            currentPiece.clockWiseRotation();
+        } else if (e.getKeyCode() == KeyEvent.VK_W) {
+            currentPiece.counterClockWiseRotation();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Pieces{" +
+                "name='" + name + '\'' +
+                ", piece=" + piece +
+                ", width=" + width +
+                ", height=" + height +
+                ", x=" + x +
+                ", y=" + y +
+                ", bottomY=" + bottomY +
+                ", color=" + color +
+                ", tiles=" + tiles +
+                ", spawnY=" + spawnY +
+                '}';
+    }
 }

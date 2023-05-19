@@ -1,6 +1,9 @@
 package fr.arthur.tetris;
 
+import fr.arthur.tetris.pieces.PieceBag;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Grid {
 
@@ -11,11 +14,11 @@ public class Grid {
     private final int HEIGHT;
 
     public static final int X_START = 3;
-    public static final int Y_START = 0;
+    public static final int Y_START = 1;
 
     public Grid() {
         this.WIDTH = 10;
-        this.HEIGHT = 20;
+        this.HEIGHT = 22;
         this.grid = new Tiles[WIDTH][HEIGHT];
     }
 
@@ -40,8 +43,10 @@ public class Grid {
         for (Tiles tile : piece.getTiles()) {
             int nextY = tile.getY() + 1;
             if (nextY >= Grid.getInstance().getHEIGHT()) {
+                Game.getInstance().resetThread();
                 return false;
             } else if (Grid.getInstance().checkTileCollisionBelow(tile)){
+                Game.getInstance().resetThread();
                 return false;
             }
         }
@@ -60,6 +65,7 @@ public class Grid {
     private boolean checkTileCollisionBelow(Tiles tile) {
         int nextY = tile.getY() + 1;
         if (nextY >= Grid.getInstance().getHEIGHT()) {
+            Game.getInstance().resetThread();
             return false;
         } else return Grid.getInstance().isOccupied(tile.getX(), nextY);
     }
@@ -92,12 +98,15 @@ public class Grid {
         for (Tiles tile : piece.tiles) {
             grid[tile.getX()][tile.getY()] = tile;
         }
-        Game.getInstance().getNewPiece();
-        if (checkSpawnCollision(Game.getInstance().getCurrentPiece())) {
-            Game.getInstance().setGameOver(true);
-        }
         addTiles(piece);
-        removeCompletedLines();
+        if (checkSpawnCollision(Game.getInstance().getNextPiece(false))) {
+            Game.getInstance().setGameOver(true);
+        } else {
+            Game.getInstance().resetThread();
+            piece = Game.getInstance().getNextPiece(true);
+            Game.getInstance().setCurrentPiece(piece);
+            removeCompletedLines();
+        }
     }
 
     public void addTiles(Pieces piece) {
@@ -127,7 +136,6 @@ public class Grid {
     }
 
     public boolean checkSpawnCollision(Pieces piece) {
-        // TODO: 18/05/2023 FIX THIS
         for (Tiles tile : piece.getTiles()) {
             if (grid[tile.getX()][tile.getY()] != null) {
                 return true;
@@ -145,8 +153,11 @@ public class Grid {
         // Vérifier les collisions avec les tuiles existantes dans la grille
         for (int x = newX; x < newX + newWidth; x++) {
             for (int y = newY; y < newY + newHeight; y++) {
-                if (grid[x][y] != null) {
-                    return true; // Collision avec une tuile existante dans la grille
+                if (piece.getPiece()[x - newX][y - newY] != 0) {
+                    System.out.println("x: " + x + " y: " + y);
+                    if (grid[x][y] != null) {
+                        return true; // Collision avec une tuile existante dans la grille
+                    }
                 }
             }
         }
@@ -188,4 +199,30 @@ public class Grid {
         return true;
     }
 
+    public void update() {
+        dropDownPiece(Game.getInstance().getCurrentPiece());
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder sb = new StringBuilder();
+        for (int y = 0; y < HEIGHT; y++) {
+            sb.append("|");
+            for (int x = 0; x < WIDTH; x++) {
+                if (grid[x][y] != null) {
+                    sb.append(" X ");
+                } else {
+                    sb.append("   ");
+                }
+            }
+            sb.append("|\n");
+        }
+
+        return sb.toString();
+    }
+
+    public void reset() {
+        grid = new Tiles[WIDTH][HEIGHT];
+    }
 }

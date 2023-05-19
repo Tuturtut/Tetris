@@ -1,7 +1,6 @@
 package fr.arthur.tetris;
 
 import fr.arthur.tetris.panel.GamePanel;
-import fr.arthur.tetris.panel.ScorePanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +9,7 @@ public class GameFrame extends JFrame {
 
     private static GameFrame INSTANCE;
 
-    public static final int WIDTH = 800;
+    public static final int WIDTH = 400;
     public static final int HEIGHT = 600;
 
     public GamePanel gamePanel;
@@ -26,7 +25,6 @@ public class GameFrame extends JFrame {
         // Ajout de la partie ou le jeu se déroule et de la partie ou les scores sont affichés
         gamePanel = new GamePanel();
         this.add(gamePanel);
-        this.add(new ScorePanel());
         this.setVisible(true);
         SwingUtilities.invokeLater(() -> gamePanel.requestFocusInWindow());
     }
@@ -40,5 +38,6 @@ public class GameFrame extends JFrame {
 
     public void repaint() {
         gamePanel.repaint();
+
     }
 }

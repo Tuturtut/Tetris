@@ -1,6 +1,7 @@
 package fr.arthur.tetris.pieces;
 
 import fr.arthur.tetris.Game;
+import fr.arthur.tetris.Grid;
 import fr.arthur.tetris.Pieces;
 
 import java.util.ArrayList;
@@ -163,6 +164,7 @@ public enum Piece {
     private int width;
     private int height;
     private final TileColor color;
+    private final int spawnX = (Grid.getInstance().getWIDTH() - 4) / 2;
     private final int spawnY;
     private int rotation; // Ajout d'une variable rotation
 
@@ -181,18 +183,6 @@ public enum Piece {
         this(name, orientations, color, 1);
     }
 
-    public static ArrayList<Pieces> fillBundle() {
-        ArrayList<Piece> pieceList = new ArrayList<>();
-        Collections.addAll(pieceList, Piece.values());
-        Collections.addAll(pieceList, Piece.values());
-        ArrayList<Pieces> bundle = new ArrayList<>();
-        for (Piece piece : pieceList) {
-            bundle.add(new Pieces(piece));
-        }
-        return bundle;
-    }
-
-
     public int[][] getCurrentOrientation() {
         int index = rotation % orientations.length;
         if (index < 0) {
@@ -208,7 +198,6 @@ public enum Piece {
     public void rotateCounterClockwise() {
         rotation--; // Décrémente la rotation de 90 degrés
     }
-
 
     public String getName() {
         return name;
@@ -264,7 +253,4 @@ public enum Piece {
         }
         return rotatedPiece;
     }
-
-
-
 }

@@ -1,55 +1,60 @@
 package fr.arthur.tetris.pieces;
 
+import fr.arthur.tetris.Pieces;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Random;
 
 public class PieceBag {
-    private List<Piece> pieceList;
-    private List<Piece> bag;
 
-    public PieceBag() {
-        pieceList = new ArrayList<>();
-        bag = new ArrayList<>();
-        fillPieceList();
-        fillBag();
+    private int size;
+    private ArrayList<Pieces> bag = new ArrayList<>();
+
+    public PieceBag(int nextPiecesNumber) {
+        this.size = nextPiecesNumber;
+        this.bag = new ArrayList<>();
+        this.addAllPiecesToBag();
     }
 
-    private void fillPieceList() {
-        // Ajoute toutes les pièces du jeu à la liste deux fois
-        pieceList.add(Piece.I);
-        pieceList.add(Piece.J);
-        pieceList.add(Piece.L);
-        pieceList.add(Piece.O);
-        pieceList.add(Piece.S);
-        pieceList.add(Piece.T);
-        pieceList.add(Piece.Z);
+    private void addAllPiecesToBag() {
+        ArrayList<Pieces> tempBag = new ArrayList<>();
+        for (Piece piece : Piece.values()) {
+            tempBag.add(new Pieces(piece));
+        }
+        System.out.println(tempBag);
+        // Shuffle this bag
+        Collections.shuffle(tempBag);
 
-        // Ajoute les autres pièces ici...
-
-        // Mélange la liste des pièces
-        Collections.shuffle(pieceList);
+        // Add all pieces to the bag
+        this.bag.addAll(tempBag);
     }
 
-    private void fillBag() {
-        // Remplit le sac avec les pièces de la liste
-        bag.addAll(pieceList);
-    }
-
-    public Piece getNextPiece() {
-        if (bag.isEmpty()) {
-            // Le sac est vide, on le remplit à nouveau
-            fillBag();
+    public Pieces getNextPiece(boolean remove) {
+        if (this.bag.size() <= this.size) {
+            System.out.println("Bag is empty, adding all pieces to bag");
+            this.addAllPiecesToBag();
+        }
+        for (Pieces piece : this.bag) {
+            System.out.println(piece.getName());
         }
 
-        // Sélectionne une pièce aléatoire dans le sac
-        int randomIndex = new Random().nextInt(bag.size());
-        Piece nextPiece = bag.get(randomIndex);
+        System.out.println("Next piece: " + this.bag.get(0).getName());
 
-        // Retire la pièce sélectionnée du sac
-        bag.remove(randomIndex);
-
+        Pieces nextPiece = this.bag.get(0);
+        if (remove)
+            this.bag.remove(0);
         return nextPiece;
+    }
+
+    public Pieces[] getNextPieces() {
+        Pieces[] nextPieces = new Pieces[this.size];
+        for (int i = 0; i < this.size; i++) {
+            nextPieces[i] = bag.get(i);
+        }
+        return nextPieces;
+    }
+
+    public void clear(){
+        this.bag.clear();
     }
 }

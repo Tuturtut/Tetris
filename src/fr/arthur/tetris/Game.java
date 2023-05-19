@@ -2,23 +2,28 @@ package fr.arthur.tetris;
 
 import fr.arthur.tetris.pieces.PieceBag;
 
+import java.util.Arrays;
+
 public class Game implements Runnable {
 
     private static Game INSTANCE;
     protected Thread gameThread;
+    protected boolean isCancelled;
 
+    SpeedUpdate speedUpdate;
+    private boolean gameOver;
     private boolean onGame;
-    private final double FPS = 60;
-    private final double GAME_SPEED = 0.5;
-
-    private PieceBag bundle;
-
-    public Pieces currentPiece;
-
+    private final double FPS = 240;
+    private final double GAME_SPEED = 1;
+    private int nextPiecesNumber = 5;
+    private PieceBag pieceBag = new PieceBag(nextPiecesNumber);
+    private Pieces currentPiece;
     public Game() {
-        this.bundle = new PieceBag();
-        this.currentPiece = new Pieces(bundle.getNextPiece());
+        setCurrentPiece(getNextPiece(true));
+        this.gameOver = false;
         this.onGame = true;
+        this.speedUpdate = new SpeedUpdate();
+        this.isCancelled = false;
     }
 
     public static Game getInstance() {
@@ -28,14 +33,21 @@ public class Game implements Runnable {
         return INSTANCE;
     }
 
+    public SpeedUpdate getSpeedUpdate() {
+        return speedUpdate;
+    }
+
     public Pieces getCurrentPiece() {
         return currentPiece;
     }
 
+    public Pieces getNextPiece(boolean remove) {
+        return pieceBag.getNextPiece(remove);
+    }
+
     public void start() {
         startGameThread();
-        SpeedUpdate speedUpdate = new SpeedUpdate();
-        speedUpdate.startGameThread();
+        this.speedUpdate.startGameThread();
     }
 
     public void startGameThread() {
@@ -43,7 +55,10 @@ public class Game implements Runnable {
         gameThread.start();
     }
 
-    private boolean isOnGame() {
+    public boolean isGameOver() {
+        return gameOver;
+    }
+    public boolean isOnGame() {
         return onGame;
     }
 
@@ -56,7 +71,7 @@ public class Game implements Runnable {
         long timer = 0;
         int frames = 0;
 
-        while (isOnGame()) {
+        while (onGame && !isCancelled) {
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
             timer += currentTime - lastTime;
@@ -80,27 +95,67 @@ public class Game implements Runnable {
         GameFrame.getInstance().repaint();
     }
 
-    public void getNewPiece() {
-        currentPiece = new Pieces(bundle.getNextPiece());
+    public int getNextPiecesNumber() {
+        return nextPiecesNumber;
     }
 
     public void setGameOver(boolean gameOver) {
-        System.out.println("Game Over");
-        onGame = gameOver;
+        this.gameOver = gameOver;
     }
 
+    public void setCurrentPiece(Pieces piece) {
+        this.currentPiece = piece;
+    }
+
+    public void resetThread() {
+        getSpeedUpdate().isThreadRunning = false;
+        speedUpdate = new SpeedUpdate();
+        speedUpdate.startGameThread();
+    }
+
+    public Pieces[] getNextPieces() {
+        return pieceBag.getNextPieces();
+    }
+
+    public void restart() {
+        clearThread();
+        INSTANCE = new Game();
+        Grid.getInstance().reset();
+        INSTANCE.start();
+    }
+
+    private void clearThread() {
+        // ARreter le thread
+        this.isCancelled = true;
+
+        getSpeedUpdate().isThreadRunning = false;
+    }
+
+
     public class SpeedUpdate implements Runnable{
+
+        protected boolean isThreadRunning = true;
+
+        private double delta;
+
+        public boolean isThreadRunning() {
+            return isThreadRunning;
+        }
+
+        public void setThreadRunning(boolean threadRunning) {
+            isThreadRunning = threadRunning;
+        }
 
         @Override
         public void run() {
             double drawInterval = 1000000000 / GAME_SPEED;
-            double delta = 0;
+            this.delta = 0;
             long lastTime = System.nanoTime();
             long currentTime;
             long timer = 0;
             int frames = 0;
 
-            while (isOnGame()) {
+            while (!isGameOver() && isThreadRunning()) {
                 currentTime = System.nanoTime();
                 delta += (currentTime - lastTime) / drawInterval;
                 timer += currentTime - lastTime;
@@ -121,7 +176,7 @@ public class Game implements Runnable {
         }
 
         private void update() {
-            Grid.getInstance().dropDownPiece(currentPiece);
+            Grid.getInstance().update();
         }
 
         public void startGameThread() {
