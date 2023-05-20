@@ -53,7 +53,7 @@ public class Grid {
         return true;
     }
 
-    private boolean checkTileCollisionBelow(Pieces piece) {
+    public boolean checkTileCollisionBelow(Pieces piece) {
         for (Tiles tile : piece.getTiles()) {
             if (checkTileCollisionBelow(tile)) {
                 return true;
@@ -62,7 +62,7 @@ public class Grid {
         return false;
     }
 
-    private boolean checkTileCollisionBelow(Tiles tile) {
+    public boolean checkTileCollisionBelow(Tiles tile) {
         int nextY = tile.getY() + 1;
         if (nextY >= Grid.getInstance().getHEIGHT()) {
             Game.getInstance().resetThread();
@@ -95,6 +95,8 @@ public class Grid {
     }
 
     public void fixPiece(Pieces piece) {
+        piece.getPieceType().resetRotation();
+        Game.getInstance().setHasSwapped(false);
         for (Tiles tile : piece.tiles) {
             grid[tile.getX()][tile.getY()] = tile;
         }
@@ -154,7 +156,6 @@ public class Grid {
         for (int x = newX; x < newX + newWidth; x++) {
             for (int y = newY; y < newY + newHeight; y++) {
                 if (piece.getPiece()[x - newX][y - newY] != 0) {
-                    System.out.println("x: " + x + " y: " + y);
                     if (grid[x][y] != null) {
                         return true; // Collision avec une tuile existante dans la grille
                     }
@@ -224,5 +225,29 @@ public class Grid {
 
     public void reset() {
         grid = new Tiles[WIDTH][HEIGHT];
+    }
+
+    public boolean canMoveBelow(Pieces pieces, int y) {
+        for (Tiles tile : pieces.getTiles()) {
+            if (tile.getY() + y >= HEIGHT) {
+                return false;
+            } else if (grid[tile.getX()][tile.getY() + y] != null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean canMove(Pieces ghostPiece, int x, int y) {
+        for (Tiles tile : ghostPiece.getTiles()) {
+            if (tile.getX() + x < 0 || tile.getX() + x >= WIDTH) {
+                return false;
+            } else if (tile.getY() + y < 0 || tile.getY() + y >= HEIGHT) {
+                return false;
+            } else if (grid[tile.getX() + x][tile.getY() + y] != null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

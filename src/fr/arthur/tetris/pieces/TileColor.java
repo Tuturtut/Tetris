@@ -9,7 +9,8 @@ public enum TileColor {
     YELLOW(new Color(255, 255, 0)),
     GREEN(new Color(0, 255, 0)),
     PURPLE(new Color(128, 0, 128)),
-    RED(new Color(255, 0, 0));
+    RED(new Color(255, 0, 0)),
+    GREY(new Color(128, 128, 128));
 
     private final Color color;
 
@@ -19,5 +20,10 @@ public enum TileColor {
 
     public Color getColor() {
         return color;
+    }
+
+    // Couleur avec moins d'opacité
+    public Color getTransparentColor(Color color, int opacity) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), opacity);
     }
 }

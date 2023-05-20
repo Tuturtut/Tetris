@@ -1,8 +1,7 @@
 package fr.arthur.tetris;
 
+import fr.arthur.tetris.pieces.Piece;
 import fr.arthur.tetris.pieces.PieceBag;
-
-import java.util.Arrays;
 
 public class Game implements Runnable {
 
@@ -18,12 +17,17 @@ public class Game implements Runnable {
     private int nextPiecesNumber = 5;
     private PieceBag pieceBag = new PieceBag(nextPiecesNumber);
     private Pieces currentPiece;
+    private Pieces reservePiece;
+
+    private boolean hasSwapped;
+
     public Game() {
         setCurrentPiece(getNextPiece(true));
         this.gameOver = false;
         this.onGame = true;
         this.speedUpdate = new SpeedUpdate();
         this.isCancelled = false;
+        this.hasSwapped = false;
     }
 
     public static Game getInstance() {
@@ -60,6 +64,35 @@ public class Game implements Runnable {
     }
     public boolean isOnGame() {
         return onGame;
+    }
+
+    public void setPieceInReserve(Piece piece) {
+        this.reservePiece = new Pieces(piece);
+    }
+
+    public void holdPiece() {
+        if (!hasSwapped) {
+            if (reservePiece == null) {
+                getCurrentPiece().getPieceType().resetRotation();
+                setPieceInReserve(getCurrentPiece().getPieceType());
+                setCurrentPiece(getNextPiece(true));
+            } else {
+
+                Pieces temp = reservePiece;
+                getCurrentPiece().getPieceType().resetRotation();
+                setPieceInReserve(getCurrentPiece().getPieceType());
+                setCurrentPiece(temp);
+            }
+            hasSwapped = true;
+        }
+    }
+
+    public boolean hasSwapped() {
+        return hasSwapped;
+    }
+
+    public void setHasSwapped(boolean hasSwapped) {
+        this.hasSwapped = hasSwapped;
     }
 
     @Override
@@ -129,6 +162,24 @@ public class Game implements Runnable {
         this.isCancelled = true;
 
         getSpeedUpdate().isThreadRunning = false;
+    }
+
+    public int getGhostPieceY(Pieces ghostPiece) {
+        int ghostPieceY = ghostPiece.getY();
+        while (Grid.getInstance().canMove(ghostPiece, 0, 1)) {
+            ghostPieceY++;
+            ghostPiece.setY(ghostPieceY);
+        }
+        ghostPiece.setY(ghostPieceY);
+        return ghostPieceY;
+    }
+
+    public void pauseGame() {
+        // TODO: 20/05/2023 Pause game
+    }
+
+    public Pieces getHoldingPiece() {
+        return reservePiece;
     }
 
 

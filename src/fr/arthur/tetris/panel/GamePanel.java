@@ -1,6 +1,7 @@
 package fr.arthur.tetris.panel;
 
 import fr.arthur.tetris.*;
+import fr.arthur.tetris.pieces.TileColor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +11,8 @@ public class GamePanel extends Component {
 
 
     private DebugGraphics g;
+    private int x = GameFrame.GRID_START_X * 20;
+    private int y = GameFrame.GRID_START_Y * 20;
 
     public GamePanel() {
         super();
@@ -21,6 +24,7 @@ public class GamePanel extends Component {
 
     public void displayGrid(Graphics g) {
         g.setColor(Color.BLACK);
+
         for (int i = 0; i < Grid.getInstance().getWIDTH(); i++) {
             for (int j = 0; j < Grid.getInstance().getHEIGHT(); j++) {
                 int height = Grid.getInstance().getHEIGHT();
@@ -29,10 +33,10 @@ public class GamePanel extends Component {
                 }
                 if (Grid.getInstance().getGrid()[i][j] != null) {
                     g.setColor(Grid.getInstance().getGrid()[i][j].getColor());
-                    g.fillRect(i * 20, j * 20, 20, 20);
+                    g.fillRect(x + i * 20, y + j * 20, 20, 20);
                 }
                 g.setColor(Color.GRAY);
-                g.drawRect(i * 20, j * 20, 20, 20);
+                g.drawRect(x + i * 20, y + j * 20, 20, 20);
             }
         }
     }
@@ -50,6 +54,8 @@ public class GamePanel extends Component {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
         drawPiece(g);
+        drawHoldingPiece(g);
+        drawGhostPiece(g);
         drawNextPieces(g);
         displayGrid(g);
     }
@@ -58,13 +64,34 @@ public class GamePanel extends Component {
         // Foreach loop
         for (Tiles tiles: Game.getInstance().getCurrentPiece().getTiles()) {
             g.setColor(tiles.getColor());
-            g.fillRect(tiles.getX() * 20, tiles.getY() * 20, 20, 20);
+            g.fillRect(x + tiles.getX() * 20, y + tiles.getY() * 20, 20, 20);
+        }
+    }
+
+    public void drawGhostPiece(Graphics g) {
+        // Clone current piece
+        Pieces ghostPiece = new Pieces(Game.getInstance().getCurrentPiece());
+        ghostPiece.setY(Game.getInstance().getGhostPieceY(ghostPiece));
+        g.setColor(ghostPiece.getTileColor().getTransparentColor(ghostPiece.getColor(), 75));
+        for (Tiles tiles : ghostPiece.getTiles()) {
+
+            g.fillRect(x + tiles.getX() * 20, y + tiles.getY() * 20, 20, 20);
+        }
+    }
+
+    public void drawHoldingPiece(Graphics g){
+        Pieces holdingPiece = Game.getInstance().getHoldingPiece();
+        if (holdingPiece != null) {
+            for (Tiles tiles : holdingPiece.getTiles()) {
+                g.setColor(tiles.getColor());
+                g.fillRect( tiles.getX() * 20 - 50, tiles.getY() * 20, 20, 20);
+            }
         }
     }
 
     public void drawNextPieces(Graphics g) {
-        int x = Grid.getInstance().getWIDTH() * 20 + 20;
-        int y = 20;
+        int x = Grid.getInstance().getWIDTH() * 20 + 20 + this.x;
+        int y = 20 + this.y;
         for (Pieces piece : Game.getInstance().getNextPieces()) {
             for (Tiles tiles : piece.getTiles()) {
                 g.setColor(tiles.getColor());
@@ -80,7 +107,7 @@ public class GamePanel extends Component {
         g.fillRect(0, 0, GameFrame.WIDTH, GameFrame.HEIGHT);
         displayGrid(g);  // Affichage de la grille
         g.setColor(Color.WHITE);  // Couleur du texte
-        g.drawString("Game Over", Grid.getInstance().getWIDTH() / 2, Grid.getInstance().getHEIGHT()/2);  // Affichage du texte au centre de la Grille
+        g.drawString("Game Over", x + Grid.getInstance().getWIDTH() / 2, y + Grid.getInstance().getHEIGHT()/2);  // Affichage du texte au centre de la Grille
     }
 
 }

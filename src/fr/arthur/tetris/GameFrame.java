@@ -9,8 +9,11 @@ public class GameFrame extends JFrame {
 
     private static GameFrame INSTANCE;
 
-    public static final int WIDTH = 400;
+    public static final int WIDTH = 500;
     public static final int HEIGHT = 600;
+
+    public static final int GRID_START_X = 5;
+    public static final int GRID_START_Y = 1;
 
     public GamePanel gamePanel;
 

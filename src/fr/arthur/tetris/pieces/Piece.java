@@ -195,6 +195,11 @@ public enum Piece {
         rotation++; // Incrémente la rotation de 90 degrés
     }
 
+    public void resetRotation() {
+        System.out.println("Rotation reset");
+        rotation = 0; // Remet la rotation à 0
+    }
+
     public void rotateCounterClockwise() {
         rotation--; // Décrémente la rotation de 90 degrés
     }

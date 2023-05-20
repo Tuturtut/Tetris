@@ -17,6 +17,7 @@ public class PieceBag {
     }
 
     private void addAllPiecesToBag() {
+        // TODO: 20/05/2023 Fix rotation spawn bug
         ArrayList<Pieces> tempBag = new ArrayList<>();
         for (Piece piece : Piece.values()) {
             tempBag.add(new Pieces(piece));

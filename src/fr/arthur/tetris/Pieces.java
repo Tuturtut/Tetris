@@ -37,6 +37,10 @@ public class Pieces {
         this(piece, Grid.X_START, Grid.Y_START - piece.getSpawnY());
     }
 
+    public Pieces(Pieces currentPiece) {
+        this(currentPiece.piece, currentPiece.x, currentPiece.y);
+    }
+
     private void addTiles() {
         int[][] piece = this.piece.getCurrentPiece();
         // Ajoute les Tiles dans l'ArrayList en gardant le sens de la pièce
@@ -225,6 +229,10 @@ public class Pieces {
             currentPiece.clockWiseRotation();
         } else if (e.getKeyCode() == KeyEvent.VK_W) {
             currentPiece.counterClockWiseRotation();
+        } else if (e.getKeyCode() == KeyEvent.VK_C) {
+            Game.getInstance().holdPiece();
+        } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            Game.getInstance().pauseGame();
         }
     }
 
@@ -242,5 +250,17 @@ public class Pieces {
                 ", tiles=" + tiles +
                 ", spawnY=" + spawnY +
                 '}';
+    }
+
+    public void setColor(TileColor color) {
+        this.color = color;
+    }
+
+    public TileColor getTileColor() {
+        return color;
+    }
+
+    public Piece getPieceType() {
+        return piece;
     }
 }
