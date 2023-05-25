@@ -13,13 +13,18 @@ public class Game implements Runnable {
     private boolean gameOver;
     private boolean onGame;
     private final double FPS = 240;
-    private final double GAME_SPEED = 1;
+    private double gameSpeed;
     private int nextPiecesNumber = 5;
     private PieceBag pieceBag = new PieceBag(nextPiecesNumber);
     private Pieces currentPiece;
     private Pieces reservePiece;
 
     private boolean hasSwapped;
+    private double lockDelay;
+    private int score;
+    private int totalLines;
+    private int level;
+    private int difficulty;
 
     public Game() {
         setCurrentPiece(getNextPiece(true));
@@ -28,6 +33,16 @@ public class Game implements Runnable {
         this.speedUpdate = new SpeedUpdate();
         this.isCancelled = false;
         this.hasSwapped = false;
+        this.score = 0;
+        this.level = 1;
+        this.totalLines = 0;
+        this.lockDelay = 5;
+        this.difficulty = 1;
+        this.setGameSpeed();
+    }
+
+    private void setGameSpeed() {
+        this.gameSpeed = level * difficulty;
     }
 
     public static Game getInstance() {
@@ -35,6 +50,42 @@ public class Game implements Runnable {
             INSTANCE = new Game();
         }
         return INSTANCE;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getTotalLines() {
+        return totalLines;
+    }
+
+    public void setTotalLines(int totalLines) {
+        this.totalLines = totalLines;
+        if (totalLines >= 10) {
+            addLevel(1);
+            setTotalLines(0);
+            setGameSpeed();
+        }
+    }
+
+    public int getLevel() {
+        return level;
+    }
+    public void setLevel(int level){
+        this.level = level;
+    }
+
+    public void addLevel(int level) {
+        setLevel(getLevel() + level);
+    }
+
+    public void addTotalLines(int totalLines) {
+        setTotalLines(getTotalLines() + totalLines);
     }
 
     public SpeedUpdate getSpeedUpdate() {
@@ -182,6 +233,24 @@ public class Game implements Runnable {
         return reservePiece;
     }
 
+    public boolean isHasSwapped() {
+        return hasSwapped;
+    }
+
+    public void addScore(int score) {
+        setScore(getScore() + score);
+    }
+
+    public int calculateScore(int linesRemoved) {
+        return switch (linesRemoved) {
+            case 1 -> 100 * level;
+            case 2 -> 300 * level;
+            case 3 -> 500 * level;
+            case 4 -> 800 * level;
+            default -> 0;
+        };
+    }
+
 
     public class SpeedUpdate implements Runnable{
 
@@ -199,7 +268,7 @@ public class Game implements Runnable {
 
         @Override
         public void run() {
-            double drawInterval = 1000000000 / GAME_SPEED;
+            double drawInterval = 1000000000 / gameSpeed;
             this.delta = 0;
             long lastTime = System.nanoTime();
             long currentTime;
@@ -233,6 +302,21 @@ public class Game implements Runnable {
         public void startGameThread() {
             gameThread = new Thread(this);
             gameThread.start();
+        }
+
+    }
+
+    public class PieceMovement{
+        // Appel de la méthode updateMovement() de la currentPiece basé sur les fps
+
+        public int mouvementSpeed = 1;
+        public double speed = FPS / mouvementSpeed;
+
+        public void updateMovement() {
+            if (speed >= 1) {
+                getCurrentPiece().updateMovement();
+                speed--;
+            }
         }
 
     }

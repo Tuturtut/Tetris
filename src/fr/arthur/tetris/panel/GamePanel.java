@@ -58,13 +58,16 @@ public class GamePanel extends Component {
         drawGhostPiece(g);
         drawNextPieces(g);
         displayGrid(g);
+        drawScore(g);
     }
 
     public void drawPiece(Graphics g) {
         // Foreach loop
         for (Tiles tiles: Game.getInstance().getCurrentPiece().getTiles()) {
             g.setColor(tiles.getColor());
-            g.fillRect(x + tiles.getX() * 20, y + tiles.getY() * 20, 20, 20);
+            if (tiles.getY() >= 1) {
+                g.fillRect(x + tiles.getX() * 20, y + tiles.getY() * 20, 20, 20);
+            }
         }
     }
 
@@ -83,7 +86,11 @@ public class GamePanel extends Component {
         Pieces holdingPiece = Game.getInstance().getHoldingPiece();
         if (holdingPiece != null) {
             for (Tiles tiles : holdingPiece.getTiles()) {
-                g.setColor(tiles.getColor());
+                if (!Game.getInstance().isHasSwapped()) {
+                    g.setColor(tiles.getColor());
+                } else {
+                    g.setColor(TileColor.GREY.getColor());
+                }
                 g.fillRect( tiles.getX() * 20 - 50, tiles.getY() * 20, 20, 20);
             }
         }
@@ -99,6 +106,14 @@ public class GamePanel extends Component {
             }
             y += 100;
         }
+
+    }
+
+    public void drawScore(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.drawString("Score: " + Game.getInstance().getScore(), x + 20, y + 20 + Grid.getInstance().getHEIGHT() * 20);
+        g.drawString("Level: " + Game.getInstance().getLevel(), x + 20, y + 40 + Grid.getInstance().getHEIGHT() * 20);
+        g.drawString("Lines: " + Game.getInstance().getTotalLines(), x+ 20, y + 60 + Grid.getInstance().getHEIGHT()* 20);
 
     }
 

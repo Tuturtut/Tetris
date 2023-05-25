@@ -18,6 +18,13 @@ public class Pieces {
     public TileColor color;
     public ArrayList<Tiles> tiles = new ArrayList<>();
     public int spawnY;
+    private boolean leftPressed;
+    private int leftPressedCount;
+    private boolean rightPressed;
+    private int rightPressedCount;
+    private boolean downPressed;
+    private int downPressedCount;
+
 
     public Pieces(Piece piece, int x, int y) {
         this.name = piece.getName();
@@ -201,15 +208,17 @@ public class Pieces {
         }
     }
 
-    public void moveDown() {
+    public void softDrop() {
         if (Grid.getInstance().checkGridCollisionBelow(this)) {
             addY(1);
+            Game.getInstance().addScore(1);
         }
     }
 
-    public void fastDrop() {
+    public void hardDrop() {
         while (!Grid.getInstance().checkLateralGridCollision(this) && Grid.getInstance().checkGridCollisionBelow(this)) {
             addY(1);
+            Game.getInstance().addScore(2);
         }
         Grid.getInstance().fixPiece(this);
     }
@@ -222,9 +231,9 @@ public class Pieces {
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
             currentPiece.moveRight();
         } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            currentPiece.moveDown();
+            currentPiece.softDrop();
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            currentPiece.fastDrop();
+            currentPiece.hardDrop();
         } else if (e.getKeyCode() == KeyEvent.VK_X) {
             currentPiece.clockWiseRotation();
         } else if (e.getKeyCode() == KeyEvent.VK_W) {
@@ -262,5 +271,40 @@ public class Pieces {
 
     public Piece getPieceType() {
         return piece;
+    }
+
+    public void setPressedKey(boolean isPressing, int keyCode) {
+        if (keyCode == KeyEvent.VK_LEFT) {
+            leftPressed = isPressing;
+        } else if (keyCode == KeyEvent.VK_RIGHT) {
+            rightPressed = isPressing;
+        } else if (keyCode == KeyEvent.VK_DOWN) {
+            downPressed = isPressing;
+        }
+
+        if (isPressing) {
+            if (keyCode == KeyEvent.VK_SPACE) {
+                hardDrop();
+            } else if (keyCode == KeyEvent.VK_X) {
+                clockWiseRotation();
+            } else if (keyCode == KeyEvent.VK_W) {
+                counterClockWiseRotation();
+            } else if (keyCode == KeyEvent.VK_C) {
+                Game.getInstance().holdPiece();
+            } else if (keyCode == KeyEvent.VK_ESCAPE) {
+                Game.getInstance().pauseGame();
+            }
+        }
+
+    }
+
+    public void updateMovement() {
+        if (leftPressed) {
+            moveLeft();
+        } else if (rightPressed) {
+            moveRight();
+        } else if (downPressed) {
+            softDrop();
+        }
     }
 }

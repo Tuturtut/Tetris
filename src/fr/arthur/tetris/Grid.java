@@ -167,12 +167,15 @@ public class Grid {
     }
 
     public void removeCompletedLines() {
+        int linesRemoved = 0;
         for (int y = HEIGHT - 1; y >= 0; y--) {
             if (isLineComplete(y)) {
                 removeLine(y);
+                linesRemoved++;
                 y++; // Réévaluez la ligne actuelle après avoir supprimé une ligne
             }
         }
+        Game.getInstance().addTotalLines(linesRemoved);
     }
 
     private void removeLine(int y) {

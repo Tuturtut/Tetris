@@ -22,7 +22,6 @@ public class PieceBag {
         for (Piece piece : Piece.values()) {
             tempBag.add(new Pieces(piece));
         }
-        System.out.println(tempBag);
         // Shuffle this bag
         Collections.shuffle(tempBag);
 
@@ -32,14 +31,9 @@ public class PieceBag {
 
     public Pieces getNextPiece(boolean remove) {
         if (this.bag.size() <= this.size) {
-            System.out.println("Bag is empty, adding all pieces to bag");
             this.addAllPiecesToBag();
         }
-        for (Pieces piece : this.bag) {
-            System.out.println(piece.getName());
-        }
 
-        System.out.println("Next piece: " + this.bag.get(0).getName());
 
         Pieces nextPiece = this.bag.get(0);
         if (remove)

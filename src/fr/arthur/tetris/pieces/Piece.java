@@ -196,7 +196,6 @@ public enum Piece {
     }
 
     public void resetRotation() {
-        System.out.println("Rotation reset");
         rotation = 0; // Remet la rotation à 0
     }
 

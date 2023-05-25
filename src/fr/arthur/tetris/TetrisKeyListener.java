@@ -14,8 +14,9 @@ public class TetrisKeyListener implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         Pieces currentPiece = Game.getInstance().getCurrentPiece();
-        if (!Game.getInstance().isGameOver())
-            currentPiece.pieceUpdate(e);
+        currentPiece.setPressedKey(true, e.getKeyCode());
+//        if (!Game.getInstance().isGameOver())
+//            currentPiece.pieceUpdate(e);
         if (e.getKeyCode() == KeyEvent.VK_R) {
             Game.getInstance().restart();
         }
@@ -23,6 +24,7 @@ public class TetrisKeyListener implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-
+        Pieces currentPiece = Game.getInstance().getCurrentPiece();
+        currentPiece.setPressedKey(false, e.getKeyCode());
     }
 }
